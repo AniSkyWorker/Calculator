@@ -25,7 +25,7 @@ static const std::map<std::string, SFunctionData::Operator> C_OPERATORS_SYMBOLS
 	{ "*", SFunctionData::Operator::Star }
 };
 
-// TODO: add class CInterpreter
+//TODO: fix calculate fns
 class CCalculator
 {
 public:
@@ -33,24 +33,21 @@ public:
 
 	bool SetVar(const std::string & var);
 
-	// TODO: remove, use GetValue/LetVarValue
 	bool LetVarValue(const std::string & var, const std::string & otherVar);
-	bool LetVarValue(const std::string & var, const double & value);
 
 	bool SetFunction(const std::string & varFunction, const std::string & var);
 	bool SetFunction(const std::string & varFunction, const std::string &firstOperand,
 		const std::string & operatorFn, const std::string &secondOperand);
 
-	double GetValue(const std::string & var);
-
-	void PrintVars();
-	void PrintFns();
+	double GetValue(const std::string & var) const;
+	std::map<std::string, double> GetVars() const;
+	std::map<std::string, SFunctionData> GetFns() const;
 
 private:
 	void CalculateTwoOperandsFunction(SFunctionData & fnInfo);
 	void CalculateFunctionValue(const std::string & function);
 
-	double GetCalculatedValue(const std::string & name);
+	double GetCalculatedValue(const std::string & name) const;
 
 	bool IsVarExist (const std::string & var) const;
 	bool IsFunctionExist (const std::string & nameFunction) const;

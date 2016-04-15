@@ -22,9 +22,9 @@ bool CCalculator::IsNameCorrect(const std::string & id) const
 	return true;
 }
 
-bool CCalculator::LetVarValue(const std::string & firstVar, const std::string & secondVar)
+bool CCalculator::LetVarValue(const std::string & firstVar, const std::string & secondValue)
 {
-	if (secondVar.empty() || (!IsVarExist(secondVar) && !IsFunctionExist(secondVar)))
+	if (secondValue.empty())
 	{
 		return false;
 	}
@@ -37,34 +37,28 @@ bool CCalculator::LetVarValue(const std::string & firstVar, const std::string & 
 		}
 	}
 
-	if (IsFunctionExist(secondVar))
+	if (IsFunctionExist(secondValue))
 	{
-		m_variables[firstVar] = GetCalculatedValue(secondVar);
+		m_variables[firstVar] = GetCalculatedValue(secondValue);
+	}
+	else if (IsVarExist(secondValue))
+	{
+		m_variables[firstVar] = m_variables[secondValue];
 	}
 	else
 	{
-		m_variables[firstVar] = m_variables[secondVar];
-	}
-
-	return true;
-}
-
-bool CCalculator::LetVarValue(const std::string & var, const double & value)
-{
-	if (IsFunctionExist(var))
-	{
-		return false;
-	}
-
-	if (!IsVarExist(var))
-	{
-		if (!SetVar(var))
+		char *end;
+		auto value = strtod(secondValue.c_str(), &end);
+		if (value != NULL)
+		{
+			m_variables[firstVar] = std::atof(secondValue.c_str());
+		}
+		else
 		{
 			return false;
 		}
 	}
 
-	m_variables[var] = value;
 	return true;
 }
 
@@ -117,15 +111,15 @@ bool CCalculator::SetFunction(const std::string & fnId, const std::string & firs
 	return true;
 }
 
-double CCalculator::GetCalculatedValue(const std::string & fnId)
+double CCalculator::GetCalculatedValue(const std::string & fnId) const
 {
 	if (IsFunctionExist(fnId))
 	{
-		return m_functions[fnId].value;
+		return m_functions.at(fnId).value;
 	}
 	else if (IsVarExist(fnId))
 	{
-		return m_variables[fnId];
+		return m_variables.at(fnId);
 	}
 
 	return std::numeric_limits<double>::quiet_NaN();
@@ -159,12 +153,7 @@ void CCalculator::CalculateTwoOperandsFunction(SFunctionData & fnInfo)
 	}
 }
 
-std::string GetFormatedString(const double & value)
-{
-	return str(boost::format("%.2f") % value);
-}
-
-double CCalculator::GetValue(const std::string & var)
+double CCalculator::GetValue(const std::string & var) const
 {
 	if (IsFunctionExist(var))
 	{
@@ -173,29 +162,21 @@ double CCalculator::GetValue(const std::string & var)
 
 	if (IsVarExist(var))
 	{
-		return m_variables[var];
+		return m_variables.at(var);
 	}
 
 	return std::numeric_limits<double>::quiet_NaN();
 }
 
 
-void CCalculator::PrintVars()
+std::map<std::string, double> CCalculator::GetVars() const
 {
-	for (auto it : m_variables)
-	{
-		std::cout << it.first << ":" << (it.second == it.second ? GetFormatedString(it.second) : "nan") << std::endl;
-	}
+	return m_variables;
 }
 
-void CCalculator::PrintFns() 
+std::map<std::string, SFunctionData> CCalculator::GetFns() const
 {
-	for (auto it : m_functions)
-	{
-		auto id = it.first;
-		auto value = GetCalculatedValue(id);
-		std::cout << id << ":" << (value == value ? GetFormatedString(GetCalculatedValue(id)) : "nan") << std::endl;
-	}
+	return m_functions;
 }
 
 void CCalculator::CalculateFunctionValue(const std::string & function)
