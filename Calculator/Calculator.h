@@ -11,9 +11,9 @@ struct SFunctionData
 		Minus
 	};
 
-	float value = FLT_MAX;
+	double value = std::numeric_limits<double>::quiet_NaN();
 	std::string firstOperand;
-	std::string secondOperand = "";
+	std::string secondOperand;
 	Operator operatorType;
 };
 
@@ -25,6 +25,7 @@ static const std::map<std::string, SFunctionData::Operator> C_OPERATORS_SYMBOLS
 	{ "*", SFunctionData::Operator::Star }
 };
 
+// TODO: add class CInterpreter
 class CCalculator
 {
 public:
@@ -32,14 +33,15 @@ public:
 
 	bool SetVar(const std::string & var);
 
+	// TODO: remove, use GetValue/LetVarValue
 	bool LetVarValue(const std::string & var, const std::string & otherVar);
-	bool LetVarValue(const std::string & var, const float & value);
+	bool LetVarValue(const std::string & var, const double & value);
 
 	bool SetFunction(const std::string & varFunction, const std::string & var);
 	bool SetFunction(const std::string & varFunction, const std::string &firstOperand,
 		const std::string & operatorFn, const std::string &secondOperand);
 
-	std::string GetValue(const std::string & var);
+	double GetValue(const std::string & var);
 
 	void PrintVars();
 	void PrintFns();
@@ -48,22 +50,18 @@ private:
 	void CalculateTwoOperandsFunction(SFunctionData & fnInfo);
 	void CalculateFunctionValue(const std::string & function);
 
-	float GetCalculatedValue(const std::string & name);
+	double GetCalculatedValue(const std::string & name);
 
 	bool IsVarExist (const std::string & var) const;
 	bool IsFunctionExist (const std::string & nameFunction) const;
 	bool IsNameCorrect (const std::string & identificator) const;
 
-	std::function<bool(char)> IsNumericChar
-		= [](const auto & chr)
-	{ return (chr >= '0' && chr <= '9'); };
-
 	std::function<bool(char)> IsCharCorrect
 		= [](const auto & chr)
-	{ return ((chr >= 'a' && chr <= 'z') || (chr >= 'A' && chr <= 'Z') || (chr >= '_')) || (chr >= '0' && chr <= '9'); };
+	{ return std::isalnum(chr) || chr >= '_'; };
 
 private:
 	std::map<std::string, SFunctionData> m_functions;
-	std::map<std::string, float> m_variables;
+	std::map<std::string, double> m_variables;
 };
 
