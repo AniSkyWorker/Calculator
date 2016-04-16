@@ -15,9 +15,10 @@ private:
 	void LetVarValue(std::istream & args);
 	void SetFunction(std::istream &args);
 
-	void PrintIdentifierValue(std::istream &args)const;
-	void PrintVariables()const;
-	void PrintFunctions()const;
+	void PrintIdentifierValue(std::istream &args);
+
+	void PrintVariables();
+	void PrintFunctions();
 
 	bool ParseStrToValues(const std::string & str, std::string & firstValue, std::string & secondValue);
 	bool ParseValueToArithmeticOperation(const std::string & str, std::string & firstValue, std::string & operand, std::string & secondValue);

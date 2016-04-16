@@ -8,8 +8,16 @@ struct SFunctionData
 		Plus,
 		Star,
 		Slash,
-		Minus
+		Minus,
+		None
 	};
+
+	SFunctionData()
+		: value(std::numeric_limits<double>::quiet_NaN())
+		, firstOperand()
+		, secondOperand()
+		, operatorType(Operator::None)
+	{}
 
 	double value = std::numeric_limits<double>::quiet_NaN();
 	std::string firstOperand;
@@ -25,7 +33,6 @@ static const std::map<std::string, SFunctionData::Operator> C_OPERATORS_SYMBOLS
 	{ "*", SFunctionData::Operator::Star }
 };
 
-//TODO: fix calculate fns
 class CCalculator
 {
 public:
@@ -39,15 +46,13 @@ public:
 	bool SetFunction(const std::string & varFunction, const std::string &firstOperand,
 		const std::string & operatorFn, const std::string &secondOperand);
 
-	double GetValue(const std::string & var) const;
+	double GetValue(const std::string & var);
 	std::map<std::string, double> GetVars() const;
 	std::map<std::string, SFunctionData> GetFns() const;
 
 private:
 	void CalculateTwoOperandsFunction(SFunctionData & fnInfo);
 	void CalculateFunctionValue(const std::string & function);
-
-	double GetCalculatedValue(const std::string & name) const;
 
 	bool IsVarExist (const std::string & var) const;
 	bool IsFunctionExist (const std::string & nameFunction) const;

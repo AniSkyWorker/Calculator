@@ -75,7 +75,7 @@ void ÑStreamHandler::SetFunction(std::istream &args)
 	}
 }
 
-void ÑStreamHandler::PrintIdentifierValue(std::istream &args)const
+void ÑStreamHandler::PrintIdentifierValue(std::istream &args)
 {
 	std::string identifier;
 	args >> identifier;
@@ -83,7 +83,7 @@ void ÑStreamHandler::PrintIdentifierValue(std::istream &args)const
 	std::cout << std::setprecision(2) << m_calculator.GetValue(identifier) << std::endl;
 }
 
-void ÑStreamHandler::PrintVariables() const
+void ÑStreamHandler::PrintVariables()
 {
 	for (auto it : m_calculator.GetVars())
 	{
@@ -91,7 +91,7 @@ void ÑStreamHandler::PrintVariables() const
 	}
 }
 
-void ÑStreamHandler::PrintFunctions() const
+void ÑStreamHandler::PrintFunctions()
 {
 	for (auto it : m_calculator.GetFns())
 	{

@@ -37,15 +37,8 @@ bool CCalculator::LetVarValue(const std::string & firstVar, const std::string & 
 		}
 	}
 
-	if (IsFunctionExist(secondValue))
-	{
-		m_variables[firstVar] = GetCalculatedValue(secondValue);
-	}
-	else if (IsVarExist(secondValue))
-	{
-		m_variables[firstVar] = m_variables[secondValue];
-	}
-	else
+	m_variables[firstVar] = GetValue(secondValue);
+	if (m_variables[firstVar] != m_variables[firstVar])
 	{
 		char *end;
 		auto value = strtod(secondValue.c_str(), &end);
@@ -82,15 +75,18 @@ bool CCalculator::SetFunction(const std::string & fnId, const std::string & varI
 	SFunctionData fnInfo;
 	fnInfo.firstOperand = varId;
 	m_functions.insert(make_pair(fnId, fnInfo));
-	CalculateFunctionValue(fnId);
 	return true;
 }
 
 bool CCalculator::SetFunction(const std::string & fnId, const std::string & firstOperand, 
 	const std::string & fnOperator, const std::string & secondOperand)
 {
-	if (IsVarExist(fnId) || IsFunctionExist(fnId)|| !IsNameCorrect(fnId) ||
-		firstOperand.empty() || fnOperator.empty() || secondOperand.empty())
+	if (IsVarExist(fnId)
+		|| IsFunctionExist(fnId)
+		|| !IsNameCorrect(fnId) 
+		|| (!IsNameCorrect(firstOperand))
+		|| fnOperator.empty()
+		|| (!IsNameCorrect(secondOperand)))
 	{
 		return false;
 	}
@@ -107,28 +103,13 @@ bool CCalculator::SetFunction(const std::string & fnId, const std::string & firs
 	fnInfo.operatorType = symbol->second;
 
 	m_functions.insert(make_pair(fnId, fnInfo));
-	CalculateFunctionValue(fnId);
 	return true;
-}
-
-double CCalculator::GetCalculatedValue(const std::string & fnId) const
-{
-	if (IsFunctionExist(fnId))
-	{
-		return m_functions.at(fnId).value;
-	}
-	else if (IsVarExist(fnId))
-	{
-		return m_variables.at(fnId);
-	}
-
-	return std::numeric_limits<double>::quiet_NaN();
 }
 
 void CCalculator::CalculateTwoOperandsFunction(SFunctionData & fnInfo)
 {
-	double firstOperand = GetCalculatedValue(fnInfo.firstOperand);
-	double secondOperand = GetCalculatedValue(fnInfo.secondOperand);
+	double firstOperand = GetValue(fnInfo.firstOperand);
+	double secondOperand = GetValue(fnInfo.secondOperand);
 
 	if (firstOperand == firstOperand && secondOperand == secondOperand)
 	{
@@ -153,11 +134,12 @@ void CCalculator::CalculateTwoOperandsFunction(SFunctionData & fnInfo)
 	}
 }
 
-double CCalculator::GetValue(const std::string & var) const
+double CCalculator::GetValue(const std::string & var)
 {
 	if (IsFunctionExist(var))
 	{
-		return GetCalculatedValue(var);
+		CalculateFunctionValue(var);
+		return m_functions.at(var).value;;
 	}
 
 	if (IsVarExist(var))
@@ -183,22 +165,13 @@ void CCalculator::CalculateFunctionValue(const std::string & function)
 {
 	if (IsFunctionExist(function))
 	{
-		if (!m_functions[function].secondOperand.empty())
+		if (!(m_functions[function].operatorType == SFunctionData::Operator::None))
 		{
 			CalculateTwoOperandsFunction(m_functions[function]);
 		}
 		else
 		{
-			auto firstOperand = m_functions[function].firstOperand;
-
-			if (IsFunctionExist(firstOperand))
-			{
-				m_functions[function] = m_functions[firstOperand];
-			}
-			else
-			{
-				m_functions[function].value = m_variables[firstOperand];
-			}
+			m_functions[function].value = GetValue(m_functions[function].firstOperand);
 		}
 	}
 }
