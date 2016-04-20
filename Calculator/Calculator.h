@@ -13,10 +13,7 @@ struct SFunctionData
 	};
 
 	SFunctionData()
-		: value(std::numeric_limits<double>::quiet_NaN())
-		, firstOperand()
-		, secondOperand()
-		, operatorType(Operator::None)
+		: operatorType(Operator::None)
 	{}
 
 	double value = std::numeric_limits<double>::quiet_NaN();
@@ -47,8 +44,8 @@ public:
 		const std::string & operatorFn, const std::string &secondOperand);
 
 	double GetValue(const std::string & var);
-	std::map<std::string, double> GetVars() const;
-	std::map<std::string, SFunctionData> GetFns() const;
+	const std::map<std::string, double> & GetVars() const;
+	const std::map<std::string, SFunctionData> & GetFns() const;
 
 private:
 	void CalculateTwoOperandsFunction(SFunctionData & fnInfo);
@@ -57,10 +54,6 @@ private:
 	bool IsVarExist (const std::string & var) const;
 	bool IsFunctionExist (const std::string & nameFunction) const;
 	bool IsNameCorrect (const std::string & identificator) const;
-
-	std::function<bool(char)> IsCharCorrect
-		= [](const auto & chr)
-	{ return std::isalnum(chr) || chr >= '_'; };
 
 private:
 	std::map<std::string, SFunctionData> m_functions;

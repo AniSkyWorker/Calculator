@@ -1,6 +1,19 @@
 #include "stdafx.h"
 #include "Calculator.h"
 
+namespace
+{
+	bool IsNan(const double & numeric)
+	{
+		return numeric != numeric;
+	}
+
+	bool IsCharCorrect(char ch)
+	{
+		return std::isalnum(ch) || ch >= '_';
+	}
+}
+
 bool CCalculator::SetVar(const std::string & var)
 {
 	if (!IsNameCorrect(var) || IsFunctionExist(var) || IsVarExist(var))
@@ -8,7 +21,7 @@ bool CCalculator::SetVar(const std::string & var)
 		return false;
 	}
 
-	m_variables.insert(std::make_pair(var, std::numeric_limits<double>::quiet_NaN()));
+	m_variables.insert({ var, std::numeric_limits<double>::quiet_NaN() });
 	return true;
 }
 
@@ -40,9 +53,9 @@ bool CCalculator::LetVarValue(const std::string & firstVar, const std::string & 
 	m_variables[firstVar] = GetValue(secondValue);
 	if (m_variables[firstVar] != m_variables[firstVar])
 	{
-		char *end;
+		char *end = nullptr;
 		auto value = strtod(secondValue.c_str(), &end);
-		if (value != NULL)
+		if (*end == '\0')
 		{
 			m_variables[firstVar] = std::atof(secondValue.c_str());
 		}
@@ -102,7 +115,7 @@ bool CCalculator::SetFunction(const std::string & fnId, const std::string & firs
 	fnInfo.secondOperand = secondOperand;
 	fnInfo.operatorType = symbol->second;
 
-	m_functions.insert(make_pair(fnId, fnInfo));
+	m_functions.insert({ fnId, fnInfo });
 	return true;
 }
 
@@ -111,9 +124,9 @@ void CCalculator::CalculateTwoOperandsFunction(SFunctionData & fnInfo)
 	double firstOperand = GetValue(fnInfo.firstOperand);
 	double secondOperand = GetValue(fnInfo.secondOperand);
 
-	if (firstOperand == firstOperand && secondOperand == secondOperand)
+	if (!IsNan(firstOperand) && !IsNan(secondOperand))
 	{
-		double result;
+		double result = std::numeric_limits<double>::quiet_NaN();
 		switch (fnInfo.operatorType)
 		{
 		case SFunctionData::Operator::Plus:
@@ -151,27 +164,28 @@ double CCalculator::GetValue(const std::string & var)
 }
 
 
-std::map<std::string, double> CCalculator::GetVars() const
+const std::map<std::string, double> & CCalculator::GetVars() const
 {
 	return m_variables;
 }
 
-std::map<std::string, SFunctionData> CCalculator::GetFns() const
+const std::map<std::string, SFunctionData> & CCalculator::GetFns() const
 {
 	return m_functions;
 }
 
-void CCalculator::CalculateFunctionValue(const std::string & function)
+void CCalculator::CalculateFunctionValue(const std::string & functionName)
 {
-	if (IsFunctionExist(function))
+	if (IsFunctionExist(functionName))
 	{
-		if (!(m_functions[function].operatorType == SFunctionData::Operator::None))
+		auto & func = m_functions[functionName];
+		if (!(func.operatorType == SFunctionData::Operator::None))
 		{
-			CalculateTwoOperandsFunction(m_functions[function]);
+			CalculateTwoOperandsFunction(func);
 		}
 		else
 		{
-			m_functions[function].value = GetValue(m_functions[function].firstOperand);
+			func.value = GetValue(func.firstOperand);
 		}
 	}
 }
