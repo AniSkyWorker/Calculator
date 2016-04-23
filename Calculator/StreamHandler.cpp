@@ -68,8 +68,9 @@ void ÑStreamHandler::SetFunction(std::istream &args)
 	args >> expression;
 
 	std::string fValue, sValue, operand , tValue;
+	Operator expressionOperator;
 	if ((!ParseStrToValues(expression, fValue, sValue) || !m_calculator.SetFunction(fValue, sValue))
-		&& (!ParseValueToArithmeticOperation(sValue, expression, operand, tValue) || !m_calculator.SetFunction(fValue, expression, operand, tValue)))
+		&& (!ParseValueToArithmeticOperation(sValue, expression, expressionOperator, tValue) || !m_calculator.SetFunction(fValue, expression, expressionOperator, tValue)))
 	{
 		std::cout << "Invalid expression!" << std::endl;
 	}
@@ -115,17 +116,16 @@ bool ÑStreamHandler::ParseStrToValues(const std::string & str, std::string & fir
 }
 
 bool ÑStreamHandler::ParseValueToArithmeticOperation(const std::string & str,
-	std::string & firstValue, std::string & operand, std::string & secondValue)
+	std::string & firstValue, Operator & operand, std::string & secondValue)
 {
-	std::vector<std::string> operands = { "+", "*", "/", "-" };
-
 	auto operandPos = std::string::npos;
 
-	for (auto it : operands)
+	for (auto elem : C_OPERATORS_SYMBOLS)
 	{
-		operandPos = str.find(it);
+		operandPos = str.find(elem.first);
 		if (operandPos != std::string::npos)
 		{
+			operand = elem.second;
 			break;
 		}
 	}
@@ -133,7 +133,6 @@ bool ÑStreamHandler::ParseValueToArithmeticOperation(const std::string & str,
 	if (operandPos != std::string::npos)
 	{
 		firstValue = str.substr(0, operandPos);
-		operand = str.c_str()[operandPos];
 		secondValue = str.substr(operandPos + 1, str.size());
 	}
 	else

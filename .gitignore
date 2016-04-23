@@ -210,3 +210,6 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+/Calculator/Calculator_Tests.cpp
+/Calculator.VC.VC.opendb
+/Calculator.VC.db

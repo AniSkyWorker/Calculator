@@ -65,6 +65,14 @@ bool CCalculator::LetVarValue(const std::string & firstVar, const std::string & 
 		}
 	}
 
+	for (auto func : m_functions)
+	{
+		if (func.second.firstOperand == firstVar || func.second.secondOperand == firstVar)
+		{
+			CalculateFunctionValue(func.first);
+		}
+	}
+
 	return true;
 }
 
@@ -88,24 +96,19 @@ bool CCalculator::SetFunction(const std::string & fnId, const std::string & varI
 	SFunctionData fnInfo;
 	fnInfo.firstOperand = varId;
 	m_functions.insert(make_pair(fnId, fnInfo));
+	CalculateFunctionValue(fnId);
 	return true;
 }
 
 bool CCalculator::SetFunction(const std::string & fnId, const std::string & firstOperand, 
-	const std::string & fnOperator, const std::string & secondOperand)
+	const Operator & fnOperator, const std::string & secondOperand)
 {
 	if (IsVarExist(fnId)
 		|| IsFunctionExist(fnId)
 		|| !IsNameCorrect(fnId) 
 		|| (!IsNameCorrect(firstOperand))
-		|| fnOperator.empty()
+		|| (fnOperator == Operator::None)
 		|| (!IsNameCorrect(secondOperand)))
-	{
-		return false;
-	}
-
-	auto symbol = C_OPERATORS_SYMBOLS.find(fnOperator);
-	if (symbol == C_OPERATORS_SYMBOLS.end())
 	{
 		return false;
 	}
@@ -113,9 +116,10 @@ bool CCalculator::SetFunction(const std::string & fnId, const std::string & firs
 	SFunctionData fnInfo;
 	fnInfo.firstOperand = firstOperand;
 	fnInfo.secondOperand = secondOperand;
-	fnInfo.operatorType = symbol->second;
+	fnInfo.operatorType = fnOperator;
 
 	m_functions.insert({ fnId, fnInfo });
+	CalculateFunctionValue(fnId);
 	return true;
 }
 
@@ -129,16 +133,16 @@ void CCalculator::CalculateTwoOperandsFunction(SFunctionData & fnInfo)
 		double result = std::numeric_limits<double>::quiet_NaN();
 		switch (fnInfo.operatorType)
 		{
-		case SFunctionData::Operator::Plus:
+		case Operator::Plus:
 			result = firstOperand + secondOperand;
 			break;
-		case SFunctionData::Operator::Slash:
+		case Operator::Slash:
 			result = firstOperand / secondOperand;
 			break;
-		case SFunctionData::Operator::Star:
+		case Operator::Star:
 			result = firstOperand * secondOperand;
 			break;
-		case SFunctionData::Operator::Minus:
+		case Operator::Minus:
 			result = firstOperand - secondOperand;
 			break;
 		}
@@ -147,11 +151,10 @@ void CCalculator::CalculateTwoOperandsFunction(SFunctionData & fnInfo)
 	}
 }
 
-double CCalculator::GetValue(const std::string & var)
+double CCalculator::GetValue(const std::string & var) const
 {
 	if (IsFunctionExist(var))
 	{
-		CalculateFunctionValue(var);
 		return m_functions.at(var).value;;
 	}
 
@@ -178,8 +181,8 @@ void CCalculator::CalculateFunctionValue(const std::string & functionName)
 {
 	if (IsFunctionExist(functionName))
 	{
-		auto & func = m_functions[functionName];
-		if (!(func.operatorType == SFunctionData::Operator::None))
+		auto & func = m_functions.at(functionName);
+		if (!(func.operatorType == Operator::None))
 		{
 			CalculateTwoOperandsFunction(func);
 		}

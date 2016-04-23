@@ -1,17 +1,17 @@
 #pragma once
 #include "stdafx.h"
 
+enum class Operator
+{
+	Plus,
+	Star,
+	Slash,
+	Minus,
+	None
+};
+
 struct SFunctionData
 {
-	enum  Operator
-	{
-		Plus,
-		Star,
-		Slash,
-		Minus,
-		None
-	};
-
 	SFunctionData()
 		: operatorType(Operator::None)
 	{}
@@ -22,12 +22,12 @@ struct SFunctionData
 	Operator operatorType;
 };
 
-static const std::map<std::string, SFunctionData::Operator> C_OPERATORS_SYMBOLS
+static const std::map<std::string, Operator> C_OPERATORS_SYMBOLS
 {
-	{ "+", SFunctionData::Operator::Plus },
-	{ "-", SFunctionData::Operator::Minus },
-	{ "/", SFunctionData::Operator::Slash },
-	{ "*", SFunctionData::Operator::Star }
+	{ "+", Operator::Plus },
+	{ "-", Operator::Minus },
+	{ "/", Operator::Slash },
+	{ "*", Operator::Star }
 };
 
 class CCalculator
@@ -41,9 +41,9 @@ public:
 
 	bool SetFunction(const std::string & varFunction, const std::string & var);
 	bool SetFunction(const std::string & varFunction, const std::string &firstOperand,
-		const std::string & operatorFn, const std::string &secondOperand);
+		const Operator & operatorFn, const std::string &secondOperand);
 
-	double GetValue(const std::string & var);
+	double GetValue(const std::string & var) const;
 	const std::map<std::string, double> & GetVars() const;
 	const std::map<std::string, SFunctionData> & GetFns() const;
 

@@ -21,7 +21,7 @@ private:
 	void PrintFunctions();
 
 	bool ParseStrToValues(const std::string & str, std::string & firstValue, std::string & secondValue);
-	bool ParseValueToArithmeticOperation(const std::string & str, std::string & firstValue, std::string & operand, std::string & secondValue);
+	bool ParseValueToArithmeticOperation(const std::string & str, std::string & firstValue, Operator & operand, std::string & secondValue);
 private:
 	typedef std::map<std::string, std::function<void(std::istream & args) >> ActionMap;
 

@@ -19,15 +19,19 @@ BOOST_FIXTURE_TEST_SUITE(Calculator_, CalculatorFixture)
 	BOOST_AUTO_TEST_CASE(can_set_new_var)
 	{
 		BOOST_CHECK(calc.SetVar("y"));
+		auto vars = calc.GetVars();
+		BOOST_CHECK(vars.find("y") != vars.end());
 	}
 
 	BOOST_AUTO_TEST_CASE(value_of_not_declared_var_equal_to_NAN)
 	{
+		BOOST_CHECK(calc.GetVars().empty());
 		BOOST_CHECK(IsNan(calc.GetValue("y")));
 	}
 
 	BOOST_AUTO_TEST_CASE(declares_when_unknown_variable_set)
 	{
+		BOOST_CHECK(calc.GetVars().empty());
 		BOOST_CHECK(IsNan(calc.GetValue("x")));
 		BOOST_CHECK(calc.LetVarValue("x", "123"));
 		BOOST_CHECK_EQUAL(calc.GetValue("x"), 123);
@@ -35,6 +39,7 @@ BOOST_FIXTURE_TEST_SUITE(Calculator_, CalculatorFixture)
 
 	BOOST_AUTO_TEST_CASE(declares_when_unknown_variable_set_to_0)
 	{
+		BOOST_CHECK(calc.GetVars().empty());
 		BOOST_CHECK(IsNan(calc.GetValue("x")));
 		BOOST_CHECK(calc.LetVarValue("x", "0"));
 		BOOST_CHECK_EQUAL(calc.GetValue("x"), 0);
@@ -42,20 +47,23 @@ BOOST_FIXTURE_TEST_SUITE(Calculator_, CalculatorFixture)
 
 	BOOST_AUTO_TEST_CASE(name_of_var_cant_be_empty_or_start_from_digit)
 	{
+		BOOST_CHECK(calc.GetVars().empty());
 		BOOST_CHECK(!calc.SetVar(""));
 		BOOST_CHECK(!calc.SetVar("12qww"));
 	}
 
 	BOOST_AUTO_TEST_CASE(can_declare_function_with_non_existent_var)
 	{
-		BOOST_CHECK(calc.SetFunction("function", "z", "+", "f"));
+		BOOST_CHECK(calc.GetFns().empty());
+		BOOST_CHECK(calc.SetFunction("function", "z", Operator::Plus, "f"));
 		BOOST_CHECK(IsNan(calc.GetValue("fuction")));
 	}
 
 	BOOST_AUTO_TEST_CASE(function_name_can_not_be_empty)
 	{
 		BOOST_CHECK(calc.SetVar("var"));
-		BOOST_CHECK(!calc.SetFunction("", "var", "", ""));
+		BOOST_CHECK(!calc.SetFunction("", "var", Operator::Minus, ""));
+		BOOST_CHECK(calc.GetFns().empty());
 	}
 
 	struct when_var_declared_ : CalculatorFixture
@@ -108,7 +116,8 @@ BOOST_FIXTURE_TEST_SUITE(Calculator_, CalculatorFixture)
 
 		BOOST_AUTO_TEST_CASE(cant_set_function_with_invalid_operand)
 		{
-			BOOST_CHECK(!calc.SetFunction("function", "&", "y", ""));
+			BOOST_CHECK(!calc.SetFunction("function", "&", Operator::Plus, ""));
+			BOOST_CHECK(calc.GetFns().empty());
 		}
 
 		BOOST_AUTO_TEST_CASE(can_set_function_with_one_paramether)
@@ -119,7 +128,7 @@ BOOST_FIXTURE_TEST_SUITE(Calculator_, CalculatorFixture)
 
 		BOOST_AUTO_TEST_CASE(cant_set_function_with_correct_operand)
 		{
-			BOOST_CHECK(calc.SetFunction("function", "x", "*", "x"));
+			BOOST_CHECK(calc.SetFunction("function", "x", Operator::Star, "x"));
 			BOOST_CHECK_EQUAL(calc.GetValue("function"), 900);
 		}
 
@@ -129,7 +138,7 @@ BOOST_FIXTURE_TEST_SUITE(Calculator_, CalculatorFixture)
 	{
 		when_function_declared_()
 		{
-			calc.SetFunction("SumXandY", "x", "+", "y");
+			calc.SetFunction("SumXandY", "x", Operator::Plus, "y");
 		}
 	};
 
@@ -142,12 +151,12 @@ BOOST_FIXTURE_TEST_SUITE(Calculator_, CalculatorFixture)
 
 		BOOST_AUTO_TEST_CASE(cant_set_fn_with_same_name)
 		{
-			BOOST_CHECK(!calc.SetFunction("SumXandY", "x", "+", "y"));
+			BOOST_CHECK(!calc.SetFunction("SumXandY", "x", Operator::Plus, "y"));
 		}
 
 		BOOST_AUTO_TEST_CASE(can_not_declare_function_if_her_name_is_busy)
 		{
-			BOOST_CHECK(!calc.SetFunction("x", "y", "", ""));
+			BOOST_CHECK(!calc.SetFunction("x", "y", Operator::None, ""));
 		}
 
 	BOOST_AUTO_TEST_SUITE_END()
@@ -157,7 +166,7 @@ BOOST_FIXTURE_TEST_SUITE(Calculator_, CalculatorFixture)
 		when_declared_some_functions_()
 		{
 			calc.LetVarValue("z", "4");
-			calc.SetFunction("DivSumXandYonZ", "SumXandY", "/", "z");
+			calc.SetFunction("DivSumXandYonZ", "SumXandY", Operator::Slash, "z");
 		}
 	};
 
