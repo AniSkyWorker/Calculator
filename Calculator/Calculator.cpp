@@ -101,7 +101,7 @@ bool CCalculator::SetFunction(const std::string & fnId, const std::string & varI
 }
 
 bool CCalculator::SetFunction(const std::string & fnId, const std::string & firstOperand, 
-	const Operator & fnOperator, const std::string & secondOperand)
+	Operator fnOperator, const std::string & secondOperand)
 {
 	if (IsVarExist(fnId)
 		|| IsFunctionExist(fnId)

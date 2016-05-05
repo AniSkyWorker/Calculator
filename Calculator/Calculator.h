@@ -41,7 +41,7 @@ public:
 
 	bool SetFunction(const std::string & varFunction, const std::string & var);
 	bool SetFunction(const std::string & varFunction, const std::string &firstOperand,
-		const Operator & operatorFn, const std::string &secondOperand);
+		 Operator operatorFn, const std::string &secondOperand);
 
 	double GetValue(const std::string & var) const;
 	const std::map<std::string, double> & GetVars() const;
